@@ -19,7 +19,7 @@ public class DemoApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 
-		System.out.println(passwordEncoder.encode("123456"));
+//		System.out.println(passwordEncoder.encode("123456"));
 
 	}
 }
