@@ -1,14 +1,11 @@
 package com.devsuperior.demo.entities;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "tb_user")
@@ -22,6 +19,12 @@ public class User {
     @Column(unique = true)
     private String email;
     private String password;
+
+    @ManyToMany
+    @JoinTable(name = "tb_user_role",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
     public User() {
     }
@@ -65,6 +68,10 @@ public class User {
         this.password = password;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -78,5 +85,13 @@ public class User {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
+
+    public Boolean hasRole(String roleName) {
+        return this.roles.stream().anyMatch(x -> x.getAuthority().equals(roleName));
     }
 }
