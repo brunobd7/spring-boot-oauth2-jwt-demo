@@ -1,14 +1,39 @@
 package com.devsuperior.demo.services;
 
+import com.devsuperior.demo.entities.Role;
+import com.devsuperior.demo.entities.User;
+import com.devsuperior.demo.projections.UserDetailsProjection;
+import com.devsuperior.demo.repositories.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UserService implements UserDetailsService {
+
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null; // TODO IMPLEMENTS DATABASE FETCH TO GET USER DATA.
+
+        List<UserDetailsProjection> userDetailsList = userRepository.searchUserAndRolesByUsername(username);
+        if(userDetailsList.isEmpty())
+            throw new UsernameNotFoundException("User not found");
+
+        User user = new User();
+        user.setEmail(userDetailsList.getFirst().getUsername());
+        user.setPassword(userDetailsList.getFirst().getPassword());
+        userDetailsList.forEach(userProjection ->
+                user.addRole(new Role(userProjection.getRoleId(), userProjection.getAuthority()))
+        );
+
+        return user;
     }
 }
